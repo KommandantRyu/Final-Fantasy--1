@@ -1,0 +1,529 @@
+import random
+import time 
+
+def slow_print(text,delay=0.15):
+    for char in text:
+        print(char, end = '', flush=True)
+        time.sleep(delay)
+    print()
+   
+#The Character and Class Main Function
+class character:
+    def __init__(user,name,char_class):
+        user.name = name
+        user.char_class = char_class
+        user.level = 1
+        user.exp = 0
+        user.health = 100
+        user.str = 10
+        user.int = 10
+        user.agi = 10
+        user.dex = 10
+        user.stat_p = 6
+        user.health_pots = 300
+        user.coins = 200
+        user.stunned = False
+            
+            #Class Bonus Stats
+        if char_class == "Warrior":
+            user.str += 5
+            user.health += 10
+        elif char_class == "Mage":
+            user.int += 10
+            user.health -= 30
+        elif char_class == "Archer":
+            user.agi += 10
+            user.health -= 40
+            user.dex += 30
+        elif char_class == "Rogue":
+            user.agi += 15
+            user.dex += 10
+        
+                
+        user.health += user.dex
+        
+        
+        
+        #Leveling up Function
+    def levelup(user):
+        user.level += 1
+        user.stat_p += 2
+        user.health += 10 + user.dex
+        print(f"{user.name}Leveled Up to Level{user.level}!!")
+        
+        #Stat Distribution Function
+    def stat_distribution(user):
+        if user.stat_p > 0:  # Check if the user has stat points to spend (should be > 0)
+            print(f"You have {user.stat_p} stat points to distribute.")
+            print("Current Stats: ")
+            print(f"1. Strength: {user.str}")
+            print(f"2. Intelligence: {user.int}")
+            print(f"3. Agility: {user.agi}")
+            print(f"4. Dexterity: {user.dex}")
+        
+        while user.stat_p > 0:
+            usrchoice = input("Choose a Stat to Increase (1/2/3/4) or type 5 to stop: ")
+
+            # Convert the input to an integer for comparison
+            if usrchoice == "1":
+                user.str += 1
+                user.stat_p -= 1
+                print(f"Strength increased to {user.str}. Stat points remaining: {user.stat_p}.")
+            elif usrchoice == "2":
+                user.int += 1
+                user.stat_p -= 1
+                print(f"Intelligence increased to {user.int}. Stat points remaining: {user.stat_p}.")
+            elif usrchoice == "3":
+                user.agi += 1
+                user.stat_p -= 1
+                print(f"Agility increased to {user.agi}. Stat points remaining: {user.stat_p}.")
+            elif usrchoice == "4":
+                user.dex += 1
+                user.stat_p -= 1
+                print(f"Dexterity increased to {user.dex}. Stat points remaining: {user.stat_p}.")
+            elif usrchoice == "5":
+                break
+            else:
+                print("Invalid Input. Please choose a valid option (1/2/3/4/5).")
+        else:
+            print("You have no stat points to spend.")
+            return
+    
+    
+    #Attack method or Function               
+    def Attack_Action(user):
+        slow_print("\n---Choose an Attack---")
+        slow_print("1.Spin")
+        slow_print("2.Slash")
+        slow_print("3.Jump Attack(20% Chance To Crit)")
+        
+        usrCA = input("Choose an Attack: ")
+        
+        if usrCA == "1":
+            dmg = user.str + random.randint(20,40)
+            slow_print(f"{user.name} Performs a Spin, Dealing {dmg} Damage to The Enemy")
+            return dmg
+        elif usrCA == "2":
+            dmg = user.str + random.randint(40,50)
+            slow_print(f"{user.name} Performs a Slash, Dealing {dmg} Damage to The Enemy")
+            return dmg
+        elif usrCA == "3":
+            dmg = user.str + random.randint(50,75)
+            if random.random() < 0.2:
+                dmg *= 2 
+                slow_print(f"Critical Hit!! {user.name} Performs a Jump Attack, Dealing {dmg} Damage to The Enemy")
+                return dmg
+            else:
+                slow_print(f"{user.name} Performs a Jumping Slash, Dealing {dmg} Damage!")
+                return dmg
+        else:
+            slow_print("Invalid Choice.")
+            return 0 
+   
+   
+    #Defensive Actions Methond/Functions
+    def Defense_Action(user,monster):
+        slow_print("\n---Defense Actions---")
+        slow_print("1. Block")
+        slow_print("2. Parry")
+        slow_print("3. Dodge")
+        
+        usrCD = input("Choose An Defensive Action: ")
+        
+        if usrCD == "1":
+            SR = random.random() < 0.6 + user.dex
+            if SR:
+                slow_print(f"{user.name} Successfully Blocked, The {monster['name']} is Stunned!")
+                return True
+            else:
+                slow_print(f"{user.name} Fails to Block")
+                return False
+        
+        elif usrCD == "2":
+            SR = random.random() < 0.6 + user.str
+            if SR:
+                slow_print(f"{user.name} Successfully Parries, The {monster['name']} is Stunned!")
+                return True
+            else:
+                slow_print(f"{user.name} Fails to Parry")
+                return False
+        elif usrCD == "3":
+            SR = random.random() < 0.6 + (user.agi / 100)
+            if SR:
+                slow_print(f"{user.name} Successfully Dodged!")
+                return True
+            else:
+                slow_print(f"{user.name} Fails Dodge")
+                return False
+        else:
+            slow_print("Invalid Action")
+            return False
+    
+    
+    #Spell Casting Methods/Function
+    def Spell_cast(user):
+        slow_print("\n---Choose a spell---")
+        slow_print("1. Fireball")
+        slow_print("2. Electrocute")
+        slow_print("3. Self Heal")
+        slow_print("4. EXPLOSION!")
+        usrSC = input("Choose a Spell: ")
+        
+        if usrSC == "1":
+            spell_dmg = random.random(20,40) + user.int
+            slow_print(f"{user.name} Casts Fireball for {spell_dmg} Damage to The Enemy")
+            return spell_dmg
+        elif usrSC == "2":
+            spell_dmg = random.random(25,45) + user.int
+            slow_print(f"{user.name} Casts Electrocute for {spell_dmg} Damage to The Enemy")
+            return spell_dmg
+            return True
+        elif usrSC == "3":
+            heal_am = 15 + user.int // 2
+            user.health += heal_am
+            slow_print(f"{user.name} Heals for {heal_am} Health!")
+            return 0
+        elif usrSC == "4":
+            spell_dmg = random.randint(50,75) + user.int
+            slow_print(f"{user.name} Casts EXPLOSION!!! for {spell_dmg} Damage to The Enemy")
+            return spell_dmg
+        else:
+            slow_print("Invalid spell choice.")
+            return 0
+    
+    
+    #Archer Attacks
+    def Archer_Action(user):
+        slow_print("\n---Attacks:---")
+        slow_print("1. Shoot")
+        slow_print("2. Quick Shot")
+        slow_print("3. Multi-Shot")
+        slow_print("4. Piercing Shot(90% Chance To Crit):")
+        
+        usrAA = input("Choose a Action: ")
+        
+        if usrAA == "1":
+            dmg = user.dex + random.randint(10,25)
+            slow_print(f"{user.name} Fires an Arrow, Dealing {dmg} Damage to The Enemy")
+            return dmg
+        elif usrAA == "2":
+            dmg = user.dex + random.randint(20,25)
+            slow_print(f"{user.name} Swiftly Fires an Arrow, Dealing {dmg} Damage to The Enemy")
+            return dmg
+        elif usrAA == "3":
+            dmg = user.dex + random.randint(40,75)
+            slow_print(f"{user.name} Fires Multiple Arrows, Dealing {dmg} Damage to The Enemy")
+            return dmg
+        elif usrAA == "4":
+            dmg = user.dex + random.randint(50,100)
+            if random.random() < 0.09:
+                dmg *= 2
+                slow_print(f"Critical Hit!! {user.name} Fires a Piercing Arrow, Dealing {dmg} Damage to The Enemy")
+                return dmg
+            else:
+                slow_print(f"{user.name} Fires a Piercing Arrow, Dealing {dmg} Damage to The Enemy")
+                return dmg
+        else:
+            slow_print("Invalid Attack")
+            return 0 
+        
+    def Rogue_Attack(user):
+        slow_print("\n---Attacks:---")
+        slow_print("1. BackStab")
+        slow_print("2. Fan of Knives")
+        slow_print("3. Shadow Strike")
+        slow_print("4. Vanish And Ambush")
+        
+        
+        usrRA = input("Choose an Action:")
+        
+        if usrRA == "1":
+            Admg = user.agi + random.randint(10,25)
+            if random.random() < 0.03:
+                Admg *= 2
+                slow_print(f"Critical Hit!! {user.name} Performs Back Stabs  Dealing {Admg} Damage to The Enemy")
+                return Admg
+            else:
+                slow_print(f"{user.name} Performs a Stab Dealing {Admg} Damage to The Enemy")
+                return Admg
+        elif usrRA == "2":
+            Admg = user.dex + random.randint(30,60)
+            slow_print(f"{user.name} Threw a Fan of Knives Dealing {Admg} Damange to The Enemy")
+            return Admg
+        elif usrRA == "3":
+            Admg = user.agi + user.str + random.randint(20,50)
+            if random.random() < 0.099:
+                Admg *= 2
+                slow_print(f"Critical Hit!! {user.name} Performs Shadow Strike Dealing {Admg} to The Enemy")
+                return Admg
+            else:
+                slow_print(f"{user.name} Performs Shadow Strike Dealing {Admg} to The Enemy")
+                return Admg
+        elif usrRA == "4":
+            Admg = user.agi + user.str + random.randint(25,100)
+            if random.random() < 0.010:
+                Admg *= 2
+                slow_print(f"Critical Hit!! {user.name} Performs Vanish and Ambush Dealing {Admg} to The Enemy")
+                return Admg
+            else:
+                Admg / 2
+                slow_print(f"{user.name} Failed to Perform Vanish and Ambush, Dealing only {Admg} Damage to The Enemy")
+                return Admg
+                
+        else:
+            slow_print("Invalid Action")
+            return 0
+                
+            
+    def ReviewStats(user):
+        slow_print(f"\t--- Stats ---")
+        slow_print(f"\t Class: {user.char_class}")
+        slow_print(f"\t Level: {user.level}")
+        slow_print(f"\t Health: {user.health}")
+        slow_print(f"\t Coins: {user.coins}")
+        slow_print(f"\t Strength: {user.str}")
+        slow_print(f"\t Intelligence: {user.int}")
+        slow_print(f"\t Agility: {user.agi}")
+        slow_print(f"\t Dexterity: {user.dex}")
+        slow_print(f"\t Experience: {user.exp}")
+        slow_print(f"\t Health Potions: {user.health_pots}")
+        slow_print(f"\t Stat Points: {user.stat_p}\n")
+        user.stat_distribution()
+      
+            
+        
+    def ExpGain(user,amount):
+        user.exp += amount
+        if user.exp >= 100:
+            user.level += 1
+            user.exp = 0
+            slow_print(f"{user.name} Has Reached Level {user.level}!!")
+            return True
+        
+class NPC:
+    def __init__(Npc, name, role):
+        Npc.name = name
+        Npc.role = role
+
+    def interact(Npc,user):
+        if Npc.role == "merchant":
+            slow_print(f"{Npc.name}: 'Greetings! Would you like to buy a health potion for 10 coins?'")
+            if user.coins >= 50:
+                choice = input("Do you want to buy a health potion? (yes/no): ").strip().lower()
+                if choice == "yes":
+                    user.health_pots += 1
+                    user.coins -= 10
+                    slow_print(f"{Npc.name}: 'Here’s your health potion. Safe travels!'")
+                else:
+                    slow_print(f"{Npc.name}: 'Maybe next time.'")
+            else:
+                slow_print(f"{Npc.name}: 'You don’t have enough coins to buy a health potion!'")
+
+        elif Npc.role == "villager":
+            slow_print(f"{Npc.name}: 'Oh dear! I need help carrying these heavy sacks. Could you lend a hand?'")
+            if user.str >= 15:
+                choice = input("Do you want to help the villager? (yes/no): ").strip().lower()
+                if choice == "yes":
+                    slow_print(f"{Npc.name}: 'Thank you so much! Here, take this as a reward.'")
+                    user.str += 10
+                    slow_print(f"Your Strength increased by 10! New Strength: {user.str}")
+                else:
+                    slow_print(f"{Npc.name}: 'Well, maybe next time.'")
+            else:
+                slow_print(f"{Npc.name}: 'You don’t seem strong enough to help me. Come back when you are stronger!'")
+
+        elif Npc.role == "Wanderer":
+            slow_print(f"{Npc.name}: 'Ahh Young adventurer, Take this gift to aid you in your journey!'")
+            user.str += 5
+            user.int += 5
+            user.agi += 5
+            user.dex += 5
+            slow_print(f"All your stats have increased by 5!")
+            user.ReviewStats()
+
+        
+        
+        
+            
+            
+class Game:
+    #The Main Game Function
+    def __init__(user):
+        user.Charac = None
+            
+    def create_character(user):
+        #Background Plot adds up to the suspense of adventure
+        slow_print("The Narrator: The sea, you either love it, or hate it. The sea houses both the most beautiful and mesmerizing things to exist in this world, but it also contains things better kept hidden under its dark embrace. Such is also the case for people. ")
+        print(" ")
+        time.sleep(1)
+        slow_print("The Narrator: It’s better that you only see your loved ones in a positive light than to know their deepest, darkest secrets. Living in a beautiful lie is a lot better than living in an ugly truth after all.")
+        print(" ")
+        time.sleep(1)
+        slow_print("The Narrator: Living in a beautiful lie is a lot better than living in an ugly truth after all. They lose their senses and question reality. What else are lies that they’d believed in? ")
+        print(" ")
+        time.sleep(1)
+        slow_print("The Narrator: I don't know, don't ask me. I always keep my lips shut, spoilers ruin everything. I like it when everyone is in a sense of suspense, but enough about me, I’m just the narrator after all. I know everything, but it’s up to you to figure things out.")
+        
+        
+        
+        slow_print("The Narrator: So tell me adventurer, What's Your name?")
+        #Character creation Fucntion/Method
+        name = input("Enter your character's name: ")
+        char_class = input("Choose your class (Warrior, Mage, Archer, Rogue): ")  
+        user.Charac = character(name,char_class)
+        print(f"{name}\nOccupation: {char_class}")
+        
+        if user.Charac.char_class == 'Warrior':
+            slow_print("The Narrator: Honor and loyalty, the two most precious treasure each warriors possess. And just like everyone else he held to these values dearly as he upholds his duty as the protector of his people.")
+            slow_print("But he was still a man bound to make mistakes. So in a moments trance he discarded the only two things valuable inside him and betrayed his country.")
+            slow_print("Execution was inevitable for him but the peoples mercy sentenced him to be exiled. Now he walks in this earth alone with nothing but his sword and this unbearable guilt.")
+            
+        elif user.Charac.char_class == 'Archer':
+            slow_print("The Narrator: In a dense forest northeast from a small elven village is a girl hunting for game. With her bow whom she's regards as family and arrows imbued with magic, she roamed the forests like a relentless predator looking for its next helpless victim.")
+            slow_print("She knew she's not supposed to be doing this after all, elven women are not suitable for physically taxing duties such as hunting.")
+            slow_print("But on this twisted game of survival gender is irrelevant. Hunt or be hunted, a saying she firmly believes in.")
+            
+        elif user.Charac.char_class == 'Mage':
+            slow_print("The Narrator: Magic is a force so strong it can change people and the very land they live in. The pursuit of knowledge about this mysterious power have led people in places they are not supposed to be in.")
+            slow_print("This mage is no different. He's in search of a gem speculated to enhance the power of its user to heights no one can achieve.")
+            slow_print("The allure of power attracted him so he left his home in search for this artifact, ignoring the possible danger ahead.")
+            
+        elif user.Charac.char_class == 'Rogue':
+            slow_print("The Narrator: Scammer, killer, seducer, manipulator, liar, and many more. This young elf was down on a dark path to satisfy his worldly needs, completely discarding the values elves held on dearly with their lives.")
+            slow_print("But his blind pursuit of happiness soon ended when an arrow zipped right through his face when he tried to rob the house of a lonely old man. In that narrow escape of his he felt true fear climbing up his spine.")
+            slow_print("His sins has caught up with him and he knew he has to pay for them. Since that day he decided to turn his life around and seek for redemption he knew he doesn't deserve.")
+        
+        slow_print(f"The Narrator: Good Luck in Your adventure {user.Charac.name}, May the Spirits Guide You in Your Quest")
+        user.Charac.ReviewStats()
+        user.Charac.stat_distribution()
+        
+        
+        
+        
+     
+     #battle encounter method/function  + monsters stats and Actions
+   # Battle encounter method/function + monsters stats and Actions
+    def encounter(user):
+        encounter_type = random.random()  # Correctly call random.random()
+        if encounter_type < 0.6:
+            monsters = [
+                {'name': "Bandit", "health": random.randint(70, 100), "strength": random.randint(5, 15)},
+                {'name': "Goblin", "health": random.randint(50, 75), "strength": random.randint(10, 35)},
+                {'name': "Undead", "health": random.randint(30, 100), "strength": random.randint(50, 60)},
+                {'name': "Slime", "health": random.randint(10, 30), "strength": random.randint(1, 20)},
+            ]
+            monster = random.choice(monsters)
+            monster_hp = monster['health']
+
+            slow_print(f"\nA {monster['name']} appears! You engage in combat.")
+            slow_print(f"{monster['name']}'s Health: {monster_hp}")
+
+            while monster_hp > 0 and user.Charac.health > 0:
+                slow_print("\nChoose an Action:")
+                if user.Charac.char_class != 'Mage':
+                    print("1. Attack")
+                    print("2. Defend")
+                    print("3. Use a Health Potion")
+                else:
+                    print("1. Cast a Spell")
+                    print("2. Defend")
+                    print("3. Use a Health Potion")
+
+                act = input("Choose an Action: ").strip()
+
+                if act == "1":
+                    if user.Charac.char_class == 'Warrior': 
+                        monster_hp -= user.Charac.Attack_Action()
+                    elif user.Charac.char_class == 'Archer':
+                        monster_hp -= user.Charac.Archer_Action()
+                    elif user.Charac.char_class == 'Rogue':
+                        monster_hp -= user.Charac.Rogue_Attack()
+                    elif user.Charac.char_class == 'Mage':  
+                        spell_dmg_or_stun = user.Charac.Spell_cast()
+                        if isinstance(spell_dmg_or_stun, int):  
+                            monster_hp -= spell_dmg_or_stun
+                            slow_print(f"{monster['name']}'s Health: {monster_hp}")
+
+                elif act == "2":  # Defense action for all classes
+                    stunned = user.Charac.Defense_Action(monster)
+                    if stunned:
+                        monster["stunned"] = True
+
+                elif act == "3":  # Health potion for all classes
+                    if user.Charac.health_pots > 0:
+                        heal_am = 30
+                        user.Charac.health += heal_am
+                        slow_print(f"{user.Charac.name} used a Health Potion and restored {heal_am} health!")
+                        user.Charac.health_pots -= 1
+                    else:
+                        slow_print(f"{user.Charac.name} doesn't have any Health Potions!")
+    
+                if not monster.get("stunned") and monster_hp > 0:  # Monster attacks if not stunned
+                    monster_atck = monster["strength"] + random.randint(1, 5)
+                    user.Charac.health -= monster_atck
+                    slow_print(f"{monster['name']} attacks {user.Charac.name}, dealing {monster_atck} damage!")
+                    slow_print(f"{user.Charac.name}'s Health: {user.Charac.health}")
+
+                if user.Charac.health <= 0:
+                    slow_print(f"{user.Charac.name} has been defeated by {monster['name']}!!")
+                    return
+                elif monster_hp <= 0:
+                    slow_print(f"{user.Charac.name} defeated the {monster['name']}!!")
+                    user.Charac.ExpGain(10)
+                    slow_print(f"{user.Charac.name} gained 10 Exp, {user.Charac.exp}/100")
+
+        elif encounter_type < 0.37:  # This is where you handle NPC encounters
+            npcs = [
+                NPC("Wandering Merchant", "merchant"),
+                NPC("Old Villager", "villager"),
+                NPC("Old Wizrd", "Wanderer"),
+            ]
+            npc = random.choice(npcs)
+            slow_print(f"\nYou meet {npc.name} ({npc.role}) on your journey!")  # Use npc instead of Npc
+            npc.interact(user.Charac)  # Use npc instead of Npc
+        
+        elif encounter_type < 0.03:# Treasure encounter for remaining probability
+            Treasure = random.randint(50, 1000)
+            user.Charac.coins += Treasure  # Add treasure to user's coins
+            slow_print(f"{user.Charac.name} has found a treasure worth {Treasure} coins!")
+            slow_print(f"{user.Charac.name} now has {user.Charac.coins} coins.")
+
+                  
+                    
+                    
+    
+    def play(user):
+        user.create_character()
+        while user.Charac.health > 0:
+            slow_print("\nChoose an action:")
+            print("1. Travel")
+            print("2. View Stats")
+            print("3. Quit")
+            action = input("Enter your action number: ").strip()
+
+            if action == "1":
+                user.encounter()
+            elif action == "2":
+                user.Charac.ReviewStats()
+            elif action == "3":
+                slow_print("Thanks for playing!")
+                break
+            else:
+                slow_print("Invalid action.")
+
+# Run the game
+if __name__ == "__main__":
+    game = Game()
+    game.play()
+                
+                    
+            
+                    
+                
+        
+            
+        
+        
+        
+        
+                
